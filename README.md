@@ -45,8 +45,14 @@ The application is deployed using Vercel.
 - Backend: Node.js with Express
 - Database: SQL
 
-## Deployment
-The app is deployed on Vercel.
+## Libraries and Frameworks Used
+This application utilizes:
 
-Feel free to explore the codebase and adapt it for your needs.
+## Shadcn UI Library
+Shadcn UI is a library used for components within this project. It provides a set of pre-designed and customizable components for easier and faster development.
+
+## Tailwind CSS Framework
+Tailwind is the CSS framework employed in this project. It offers a utility-first approach, allowing for quick styling and consistent design throughout the application.
+
+Feel free to explore these libraries and frameworks for better understanding and potential customization within the project.
 
