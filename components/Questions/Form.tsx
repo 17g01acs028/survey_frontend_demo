@@ -1,7 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import parser from 'xml2js';
 import axios from 'axios';
@@ -46,7 +44,7 @@ export function Questions() {
       .catch((error) => {
         console.error('Error fetching or parsing XML:', error);
       });
-  }, []);
+  }, [url]);
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     setSubmitting(true);
