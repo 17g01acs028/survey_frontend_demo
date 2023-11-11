@@ -20,7 +20,7 @@ import Loading from "./Loading";
 
 
 export function Questions() {
-  const url = process.env.URL;
+  const url = "https://sky-survey-demo.vercel.app";
   const [isloading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [submiting, setSubmitting] = useState(false);
