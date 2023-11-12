@@ -22,12 +22,11 @@ export default function Modal({ message, title }: any) {
                         <div className="relative p-6 flex items-center justify-center">
                             <Label className="my-4  text-lg leading-relaxed text-muted-foreground">
                                 {message}
-
                             </Label>
-                            <div className="bg-white flex space-x-2 p-5 rounded-full justify-center items-center">
-                                <div className="bg-blue-600 p-2  w-4 h-4 rounded-full animate-bounce  blue-circle"></div>
-                                <div className="bg-green-600 p-2 w-4 h-4 rounded-full animate-bounce green-circle"></div>
-                                <div className="bg-red-600 p-2  w-4 h-4 rounded-full animate-bounce red-circle"></div>
+                            <div className="flex space-x-1 p-3 rounded-full justify-center items-center">
+                                <div className="bg-blue-600 p-1  w-2 h-2 rounded-full animate-bounce  blue-circle"></div>
+                                <div className="bg-green-600 p-1 w-2 h-3 rounded-full animate-bounce green-circle"></div>
+                                <div className="bg-red-600 p-1  w-2 h-3 rounded-full animate-bounce red-circle"></div>
                             </div>
                         </div>
                     </div>

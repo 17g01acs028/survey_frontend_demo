@@ -243,7 +243,7 @@ export function Questions() {
           {questions && currentCard === questions.length - 1 && <Button disabled={submiting ? true : false}>{submiting ? "Saving please wait....." : "Submit"}</Button>}
         </CardFooter>
       </Card>
-      {submiting ? (<Modal message="Submitting Please wait......" title="Do not close or Refresh this Window please :-)"/>) : null}
+      {submiting ? (<Modal message="Submitting Please wait " title="Do not close or Refresh this Window please :-)"/>) : null}
     </form>
 
   )

@@ -1,13 +1,13 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import parser from 'xml2js';
-import {  useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Card,
     CardContent,
     CardFooter,
     CardHeader,
-   
+
 } from "@/components/ui/card"
 import {
     Select,
@@ -37,7 +37,7 @@ import Loading from "./Loading";
 
 const Response = () => {
     const url = "https://sky-survey-demo.vercel.app";
-    const d_url ="https://easy-plum-calf-hose.cyclic.app"; 
+    const d_url = "https://easy-plum-calf-hose.cyclic.app";
 
     const [isloading, setLoading] = useState(true);
     const [response, setResponse] = useState([]);
@@ -59,7 +59,7 @@ const Response = () => {
                         setCount(result.question_responses.$.total_count);
                         // Access the parsed data, which should be similar to JSON
                         setResponse(result.question_responses.question_response);
-                        setLoading(false);   
+                        setLoading(false);
                     }
                 });
             })
@@ -73,6 +73,7 @@ const Response = () => {
     function generateDownloadLink(fileName: any) {
         return `${d_url}/api/questions/response/download/${fileName}`;
     }
+
 
     function Prev() {
         setPage((pre) => pre - 1);
@@ -108,72 +109,81 @@ const Response = () => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                  {isloading ? (
-                    <Loading/>
-                  ) : (
-                    <ScrollArea className="h-[calc(100vh-300px)]">
-                    <Table className="overflow-x-auto">
-                        <TableCaption>A list of Survey&apos;s responses.</TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Full Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Gender</TableHead>
-                                <TableHead>Programming_Stacks</TableHead>
-                                <TableHead>Certificates</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    {isloading ? (
+                        <Loading />
+                    ) : (
+                        <div className="overflow-hidden my_table  max-h-[calc(100vh-290px)]">
+                            <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8 z-10">
+                                <div className="overflow-hidden">
+                                    <table className="min-w-full text-left text-sm font-light">
+                                        <thead className="border-b font-medium dark:border-neutral-500">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-4">Full Name</th>
+                                                <th scope="col" className="px-6 py-4">Email</th>
+                                                <th scope="col" className="px-6 py-4">Description</th>
+                                                <th scope="col" className="px-6 py-4">Gender</th>
+                                                <th scope="col" className="px-6 py-4">Programming_Stacks</th>
+                                                <th scope="col" className="px-6 py-4">Certificates</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {response && response.map((value: any, index: any) => (
+                                                <tr key={index} className="border-b dark:border-neutral-500">
+                                                    <td className="whitespace-nowrap px-6 py-4 font-medium">{value.full_name}</td>
+                                                    <td className="whitespace-nowrap px-6 py-4">{value.email_address}</td>
+                                                    <td className="whitespace-pre-wrap px-6 py-4">{value.description}</td>
+                                                    <td className="whitespace-nowrap px-6 py-4">{value.gender}</td>
+                                                    <td className="whitespace-pre-wrap px-6 py-4">
+                                                        {value.programming_stack.map((value: any, index: any) => {
+                                                            let stringWithoutBrackets = value;
+                                                            // Remove square brackets using slice
+                                                            if (value.startsWith('[') && value.endsWith(']')) {
+                                                                stringWithoutBrackets = value.slice(1, -1);
+                                                            }
 
-                        <TableBody>
-                            {response && response.map((value: any, index: any) => (
 
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{value.full_name}</TableCell>
-                                    <TableCell>{value.email_address}</TableCell>
-                                    <TableCell>{value.description}</TableCell>
-                                    <TableCell>{value.gender}</TableCell>
-                                    <TableCell>{value.programming_stack.map((value: any, index: any) => {
-                                        let stringWithoutBrackets = value;
-                                        // Remove square brackets using slice
-                                        if (value.startsWith('[') && value.endsWith(']')) {
-                                            stringWithoutBrackets = value.slice(1, -1);
-                                        }
+                                                            // Remove double quotes using replace
+                                                            const stringWithoutQuotes = stringWithoutBrackets.replace(/"/g, '');
+                                                            return (
+
+                                                                <div key={`T1` + index}  >
+                                                                    {stringWithoutQuotes}
+                                                                </div>
+
+                                                            )
+                                                        })}
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-6 py-4">
+                                                        {value.certificates.map((value: any, index: any) => (value.certificate).map((value: any, index: any) =>
+                                                        (
+
+                                                            <div key={`T2` + index} className="border m-0.5 p-1 flex  items-center overflow-hidden" >
 
 
-                                        // Remove double quotes using replace
-                                        const stringWithoutQuotes = stringWithoutBrackets.replace(/"/g, '');
-                                        return (
+                                                                <p title={value} className="cursor-pointer  text-ellipsis overflow-hidden w-[100px] ...">{value}
+                                                                    
+                                                                </p>
+                                                                <Link href={generateDownloadLink(value)} className="ml-3">
+                                                                    <span><DownloadIcon /></span>
+                                                                </Link>
+                                                            </div>
 
-                                            <div key={`T1` + index}  >
-                                                {stringWithoutQuotes}
-                                            </div>
+                                                        )
+                                                        ))}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-                                        )
-                                    })}</TableCell>
-                                    <TableCell className="max-w-[100px] md:max-w-[200px] lg:max-w-[300px]">
-                                        {value.certificates.map((value: any, index: any) => (value.certificate).map((value: any, index: any) =>
-                                        (
 
-                                            <div key={`T2` + index} className="border m-0.5 p-1 overflow-hidden" >
 
-                                                {value}
-                                                <Link href={generateDownloadLink(value)}>
-                                                    <Button className="ml-1"><DownloadIcon /></Button>
-                                                </Link>
-                                            </div>
 
-                                        )
-                                        ))}
-                                    </TableCell>
-                                </TableRow>
 
-                            ))}
-                        </TableBody>
-                    </Table>
-                </ScrollArea>
-                  )}
-                    
                     {/* End of table content */}
                 </CardContent>
 
