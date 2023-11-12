@@ -47,6 +47,7 @@ const Response = () => {
     const [count, setCount] = useState(10);
 
     useEffect(() => {
+        setLoading(true);
         // Fetch Questions
         fetch(`${url}/api/questions/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
             .then((response) => response.text())
