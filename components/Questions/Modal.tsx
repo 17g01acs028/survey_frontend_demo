@@ -11,16 +11,16 @@ export default function Modal({ message, title }: any) {
             >
                 <div className="relative w-auto my-6 mx-auto max-w-3xl">
                     {/*content*/}
-                    <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                    <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full dark:bg-slate-600 bg-slate-200 outline-none focus:outline-none">
                         {/*header*/}
                         <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
-                            <h3 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-muted-foreground">
+                            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
                                 {title}
-                            </h3>
+                            </h4>
                         </div>
                         {/*body*/}
-                        <div className="relative p-6 flex-auto">
-                            <Label className="my-4 text-blueGray-500 text-lg leading-relaxed">
+                        <div className="relative p-6 flex items-center justify-center">
+                            <Label className="my-4  text-lg leading-relaxed text-muted-foreground">
                                 {message}
 
                             </Label>
