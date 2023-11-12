@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { FormEvent, useEffect, useState } from "react"
 import { toast } from "react-toastify";
 import Loading from "./Loading";
+import Modal from "./Modal";
 
 
 export function Questions() {
@@ -237,11 +238,12 @@ export function Questions() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          {questions && currentCard > 0 && <Button variant="outline" type="button" onClick={handlePrevious}>Previous</Button>}
-          {questions && currentCard < questions.length - 1 && <Button type="button" onClick={handleNext}>Next</Button>}
-          {questions && currentCard === questions.length - 1 && <Button disabled={submiting ? true : false}>Submit</Button>}
+          {questions && currentCard > 0 && <Button variant="outline" disabled={submiting ? true : false} type="button" onClick={handlePrevious}>Previous</Button>}
+          {questions && currentCard < questions.length - 1 && <Button disabled={submiting ? true : false} type="button" onClick={handleNext}>Next</Button>}
+          {questions && currentCard === questions.length - 1 && <Button disabled={submiting ? true : false}>{submiting ? "Saving please wait....." : "Submit"}</Button>}
         </CardFooter>
       </Card>
+      {submiting ? (<Modal message="Submitting Please wait......" title="Do not close or Refresh this Window please :-)"/>) : null}
     </form>
 
   )
