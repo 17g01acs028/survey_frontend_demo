@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link';
 import { Button } from "@/components/ui/button"
 import parser from 'xml2js';
 import axios from 'axios';
@@ -109,7 +110,14 @@ export function Questions() {
 
             <div className="flex flex-col space-y-1.5">
               {isloading ? (<Loading/>) : (<>
-                {questions ? (<></>) : (<>We do not have any survey at the moment.</>)}
+                {!questions || questions.length === 0 ? (
+                  <div className="text-center space-y-4 py-8">
+                    <p>We do not have any survey at the moment.</p>
+                    <Link href="/create">
+                      <Button type="button">Create Survey</Button>
+                    </Link>
+                  </div>
+                ) : null}
               {questions && questions.map((question: any, index) => (
                 <div key={index}>
                   {question.$.type === 'choice' ? (
