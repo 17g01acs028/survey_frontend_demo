@@ -21,7 +21,7 @@ import Loading from "./Loading";
 import Modal from "./Modal";
 
 
-export function Questions() {
+export function Questions({ surveyId }: { surveyId: string }) {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
   const [isloading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
@@ -31,7 +31,7 @@ export function Questions() {
 
   useEffect(() => {
     // Fetch Questions
-    fetch(`${url}/api/questions`)
+    fetch(`${url}/api/questions/${surveyId}`)
       .then((response) => response.text())
       .then((xmlData) => {
         // Parse the XML into a JavaScript object
@@ -46,7 +46,7 @@ export function Questions() {
       .catch((error) => {
         console.error('Error fetching or parsing XML:', error);
       });
-  }, [url]);
+  }, [url, surveyId]);
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     setSubmitting(true);
@@ -59,7 +59,7 @@ export function Questions() {
       const formData = new FormData(e.currentTarget);
 
       try {
-        const response = await axios.put(`${url}/api/questions/response`, formData);
+        const response = await axios.put(`${url}/api/questions/${surveyId}/response`, formData);
         if (response.status === 201) {
           toast("Data saved successfully.");
           push('/response');

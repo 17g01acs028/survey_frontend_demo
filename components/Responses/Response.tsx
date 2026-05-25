@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import parser from 'xml2js';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react"
 import {
     Card,
@@ -36,6 +37,9 @@ import Loading from "./Loading";
 
 
 const Response = () => {
+    const searchParams = useSearchParams();
+    const surveyId = searchParams.get('surveyId');
+
     const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
     const d_url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
@@ -48,8 +52,13 @@ const Response = () => {
 
     useEffect(() => {
         setLoading(true);
+        if (!surveyId) {
+            setLoading(false);
+            return;
+        }
+
         // Fetch Questions
-        fetch(`${url}/api/questions/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
+        fetch(`${url}/api/questions/${surveyId}/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -77,7 +86,7 @@ const Response = () => {
                 setCount(0);
                 setLoading(false);
             });
-    }, [page, pageSize, email]);
+    }, [page, pageSize, email, surveyId, url]);
 
 
 

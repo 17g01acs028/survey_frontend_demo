@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-export default function CreateQuestion() {
+export default function CreateQuestion({ surveyId }: { surveyId: string }) {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
   const { push } = useRouter();
 
@@ -78,13 +78,17 @@ export default function CreateQuestion() {
 
       xml += `</question>`;
 
-      const response = await axios.post(`${url}/api/questions/new`, xml, {
+      const response = await axios.post(`${url}/api/questions/${surveyId}/new`, xml, {
         headers: { "Content-Type": "text/xml" }
       });
 
       if (response.status === 201) {
         toast.success("Question added successfully!");
-        push("/");
+        // Stay on page to add more
+        setName("");
+        setText("");
+        setDescription("");
+        setOptions([""]);
       } else {
         toast.error("Failed to add question.");
       }
