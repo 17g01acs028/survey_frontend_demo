@@ -50,21 +50,31 @@ const Response = () => {
         setLoading(true);
         // Fetch Questions
         fetch(`${url}/api/questions/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
-            .then((response) => response.text())
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.text();
+            })
             .then((xmlData) => {
-
                 // Parse the XML into a JavaScript object
                 parser.parseString(xmlData, (err, result) => {
-                    if (!err) {
-                        setCount(result.question_responses.$.total_count);
+                    if (!err && result && result.question_responses) {
+                        setCount(result.question_responses.$.total_count || 0);
                         // Access the parsed data, which should be similar to JSON
-                        setResponse(result.question_responses.question_response);
-                        setLoading(false);
+                        setResponse(result.question_responses.question_response || []);
+                    } else {
+                        setResponse([]);
+                        setCount(0);
                     }
+                    setLoading(false);
                 });
             })
             .catch((error) => {
                 console.error('Error fetching or parsing XML:', error);
+                setResponse([]);
+                setCount(0);
+                setLoading(false);
             });
     }, [page, pageSize, email]);
 
