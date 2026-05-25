@@ -21,7 +21,7 @@ import Modal from "./Modal";
 
 
 export function Questions() {
-  const url = "https://sky-survey-demo.vercel.app";
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
   const [isloading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [submiting, setSubmitting] = useState(false);
@@ -58,21 +58,13 @@ export function Questions() {
       const formData = new FormData(e.currentTarget);
 
       try {
-        const response_file = await axios.post('https://easy-plum-calf-hose.cyclic.app/upload', formData);
-        if (response_file.status === 200) {
-          const data = await axios.post(`${url}/api/questions/response`, formData)
-            .then((response) => {
-              if (response.status === 201) {
-                toast("Data saved successfully.")
-                push('/response');
-
-              } else {
-                toast("Failed to save data." + response.status);
-                setSubmitting(false);
-
-              }
-
-            })
+        const response = await axios.put(`${url}/api/questions/response`, formData);
+        if (response.status === 201) {
+          toast("Data saved successfully.");
+          push('/response');
+        } else {
+          toast("Failed to save data." + response.status);
+          setSubmitting(false);
         }
       } catch (err) {
         setSubmitting(false);

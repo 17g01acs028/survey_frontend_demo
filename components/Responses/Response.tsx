@@ -36,8 +36,8 @@ import Loading from "./Loading";
 
 
 const Response = () => {
-    const url = "https://sky-survey-demo.vercel.app";
-    const d_url = "https://easy-plum-calf-hose.cyclic.app";
+    const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+    const d_url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
     const [isloading, setLoading] = useState(true);
     const [response, setResponse] = useState([]);
