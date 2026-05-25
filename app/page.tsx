@@ -6,13 +6,15 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import parser from "xml2js";
 import Loading from "@/components/Questions/Loading";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
   const [surveys, setSurveys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchSurveys = () => {
     fetch(`${url}/api/surveys`)
       .then((res) => res.text())
       .then((xmlData) => {
@@ -22,6 +24,8 @@ export default function Home() {
               ? result.surveys.survey
               : [result.surveys.survey];
             setSurveys(parsedSurveys);
+          } else {
+            setSurveys([]);
           }
           setLoading(false);
         });
@@ -30,7 +34,23 @@ export default function Home() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchSurveys();
   }, [url]);
+
+  const handleDeleteSurvey = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this survey? All associated questions and responses will be lost.")) return;
+    try {
+      await axios.delete(`${url}/api/surveys/delete/${id}`);
+      toast.success("Survey deleted successfully!");
+      fetchSurveys();
+    } catch (err) {
+      toast.error("Failed to delete survey.");
+      console.error(err);
+    }
+  };
 
   return (
     <div className="container mx-auto py-10 mt-[100px]">
@@ -61,13 +81,21 @@ export default function Home() {
                 <p className="text-sm text-gray-500">Responses: {survey.$.response_count}</p>
                 <p className="text-sm text-gray-500">Created: {new Date(survey.created_at[0]).toLocaleDateString()}</p>
               </CardContent>
-              <CardFooter className="flex gap-2">
-                <Link href={`/take/${survey.$.id}`} className="flex-1">
-                  <Button className="w-full">Take Survey</Button>
+              <CardFooter className="flex flex-col gap-2">
+                <div className="flex w-full gap-2">
+                  <Link href={`/take/${survey.$.id}`} className="flex-1">
+                    <Button className="w-full">Take Survey</Button>
+                  </Link>
+                  <Link href={`/response?surveyId=${survey.$.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full">View Responses</Button>
+                  </Link>
+                </div>
+                <Link href={`/create/${survey.$.id}`} className="w-full">
+                  <Button variant="secondary" className="w-full">Edit / Add Questions</Button>
                 </Link>
-                <Link href={`/response?surveyId=${survey.$.id}`} className="flex-1">
-                  <Button variant="outline" className="w-full">View Responses</Button>
-                </Link>
+                <Button variant="destructive" className="w-full" onClick={() => handleDeleteSurvey(survey.$.id)}>
+                  Delete Survey
+                </Button>
               </CardFooter>
             </Card>
           ))}

@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { FormEvent, useEffect, useState } from "react"
 import { toast } from "react-toastify";
 import Loading from "./Loading";
@@ -62,13 +63,15 @@ export function Questions({ surveyId }: { surveyId: string }) {
         const response = await axios.put(`${url}/api/questions/${surveyId}/response`, formData);
         if (response.status === 201) {
           toast("Data saved successfully.");
-          push('/response');
+          push(`/response?surveyId=${surveyId}`);
         } else {
           toast("Failed to save data." + response.status);
           setSubmitting(false);
         }
-      } catch (err) {
+      } catch (err: any) {
         setSubmitting(false);
+        const errorMessage = err.response?.data?.error || "An error occurred while submitting the survey.";
+        toast.error(errorMessage);
         console.log(err);
       }
 
@@ -195,6 +198,51 @@ export function Questions({ surveyId }: { surveyId: string }) {
                         </div>
                       </CardContent>
                     </Card>
+                  ) : question.$.type === 'range' ? (
+                    <Card className={`w-full ${index === currentCard ? "" : "hidden"}`}>
+                      <CardHeader>
+                        <CardTitle>{question.text}</CardTitle>
+                        <CardDescription>{question.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid w-full items-center gap-4">
+                          <div className="flex flex-col space-y-1.5">
+                            <div className="flex justify-between text-sm text-gray-500 mb-2">
+                              <span>{question.range_properties && question.range_properties[0].$.min}</span>
+                              <span>{question.range_properties && question.range_properties[0].$.max}</span>
+                            </div>
+                            <input
+                              type="range"
+                              id={`data_${index}`}
+                              name={question.$.name}
+                              min={question.range_properties && question.range_properties[0].$.min}
+                              max={question.range_properties && question.range_properties[0].$.max}
+                              step={question.range_properties && question.range_properties[0].$.step}
+                              required={question.$.required === 'yes'}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : question.$.type === 'rate' ? (
+                    <Card className={`w-full ${index === currentCard ? "" : "hidden"}`}>
+                      <CardHeader>
+                        <CardTitle>{question.text}</CardTitle>
+                        <CardDescription>{question.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid w-full items-center gap-4">
+                          <div className="flex flex-col space-y-1.5">
+                            <StarRatingInput 
+                              max={Number(question.rate_properties?.[0]?.$.max) || 5} 
+                              name={question.$.name} 
+                              id={`data_${index}`} 
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ) : (
                     <Card className={`w-full ${index === currentCard ? "" : "hidden"}`}>
                       <CardHeader>
@@ -212,12 +260,12 @@ export function Questions({ surveyId }: { surveyId: string }) {
                                   type={`${question.$.type === "short_text" ? "text" : question.$.type}`}
                                   id={`data_${index}`}
                                   name={question.$.name}
-                                  required
+                                  required={question.$.required === 'yes'}
                                 />
                               ) : (
                                 <Textarea id={`data_${index}`}
                                   name={question.$.name}
-                                  required placeholder="Start to type here." />
+                                  required={question.$.required === 'yes'} placeholder="Start to type here." />
                               )
                             }
 
@@ -365,4 +413,34 @@ function validate(currentCard: any) {
 
 
   //Check checkbox end
+}
+
+function StarRatingInput({ max, name, id }: { max: number, name: string, id: string }) {
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <input type="hidden" name={name} id={id} value={rating || ''} required />
+      <div className="flex items-center space-x-2 text-yellow-400">
+        {Array.from({ length: max }).map((_, i) => {
+          const starValue = i + 1;
+          return (
+            <svg 
+              key={i} 
+              className={`w-8 h-8 cursor-pointer transition-colors ${starValue <= (hover || rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} 
+              fill="currentColor" 
+              viewBox="0 0 20 20"
+              onClick={() => setRating(starValue)}
+              onMouseEnter={() => setHover(starValue)}
+              onMouseLeave={() => setHover(0)}
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          );
+        })}
+      </div>
+      {rating > 0 && <span className="text-sm text-gray-500">{rating} out of {max}</span>}
+    </div>
+  );
 }

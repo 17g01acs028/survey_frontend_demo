@@ -50,6 +50,8 @@ const Response = () => {
     const [email, setEmail] = useState("");
     const [count, setCount] = useState(10);
 
+    const [questions, setQuestions] = useState<any[]>([]);
+
     useEffect(() => {
         setLoading(true);
         if (!surveyId) {
@@ -57,33 +59,49 @@ const Response = () => {
             return;
         }
 
-        // Fetch Questions
-        fetch(`${url}/api/questions/${surveyId}/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                    setLoading(false);
-                }
+        const fetchResponses = fetch(`${url}/api/questions/${surveyId}/responses?page=${page}&pageSize=${pageSize}&email=${email}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.text();
-            })
-            .then((xmlData) => {
-                // Parse the XML into a JavaScript object
-                parser.parseString(xmlData, (err, result) => {
+            });
+
+        const fetchQuestions = fetch(`${url}/api/questions/${surveyId}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.text();
+            });
+
+        Promise.all([fetchResponses, fetchQuestions])
+            .then(([resXml, qXml]) => {
+                parser.parseString(resXml, (err, result) => {
                     if (!err && result && result.question_responses) {
                         setCount(result.question_responses.$.total_count || 0);
-                        // Access the parsed data, which should be similar to JSON
-                        setResponse(result.question_responses.question_response || []);
+                        let resData = result.question_responses.question_response || [];
+                        if (!Array.isArray(resData)) resData = [resData];
+                        setResponse(resData);
                     } else {
                         setResponse([]);
                         setCount(0);
                     }
-                    setLoading(false);
                 });
+
+                parser.parseString(qXml, (err, result) => {
+                    if (!err && result && result.questions && result.questions.question) {
+                        let qData = result.questions.question;
+                        if (!Array.isArray(qData)) qData = [qData];
+                        setQuestions(qData);
+                    } else {
+                        setQuestions([]);
+                    }
+                });
+
+                setLoading(false);
             })
             .catch((error) => {
-                console.error('Error fetching or parsing XML:', error);
+                console.error('Error fetching data:', error);
                 setResponse([]);
                 setCount(0);
+                setQuestions([]);
                 setLoading(false);
             });
     }, [page, pageSize, email, surveyId, url]);
@@ -138,59 +156,37 @@ const Response = () => {
                                     <table className="min-w-full text-left text-sm font-light">
                                         <thead className="border-b font-medium dark:border-neutral-500">
                                             <tr>
-                                                <th scope="col" className="px-6 py-4">Full Name</th>
-                                                <th scope="col" className="px-6 py-4">Email</th>
-                                                <th scope="col" className="px-6 py-4">Description</th>
-                                                <th scope="col" className="px-6 py-4">Gender</th>
-                                                <th scope="col" className="px-6 py-4">Programming_Stacks</th>
-                                                <th scope="col" className="px-6 py-4">Certificates</th>
+                                                {questions && questions.map((q: any, i: number) => (
+                                                    <th key={i} scope="col" className="px-6 py-4">{q.text || q.$.name}</th>
+                                                ))}
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {response && response.map((value: any, index: any) => (
                                                 <tr key={index} className="border-b dark:border-neutral-500">
-                                                    <td className="whitespace-nowrap px-6 py-4 font-medium">{value.full_name}</td>
-                                                    <td className="whitespace-nowrap px-6 py-4">{value.email_address}</td>
-                                                    <td className="whitespace-pre-wrap px-6 py-4">{value.description}</td>
-                                                    <td className="whitespace-nowrap px-6 py-4">{value.gender}</td>
-                                                    <td className="whitespace-pre-wrap px-6 py-4">
-                                                        {value.programming_stack.map((value: any, index: any) => {
-                                                            let stringWithoutBrackets = value;
-                                                            // Remove square brackets using slice
-                                                            if (value.startsWith('[') && value.endsWith(']')) {
-                                                                stringWithoutBrackets = value.slice(1, -1);
-                                                            }
+                                                    {questions && questions.map((q: any, i: number) => {
+                                                        const qName = q.$.name;
+                                                        const rawValue = value[qName];
+                                                        
+                                                        // Handle parsing value depending on type if necessary
+                                                        let displayValue = rawValue;
+                                                        if (Array.isArray(rawValue)) {
+                                                            displayValue = rawValue.join(", ");
+                                                        } else if (typeof rawValue === 'string' && rawValue.startsWith('[')) {
+                                                            try {
+                                                                const parsed = JSON.parse(rawValue);
+                                                                if (Array.isArray(parsed)) {
+                                                                    displayValue = parsed.join(", ");
+                                                                }
+                                                            } catch(e) {}
+                                                        }
 
-
-                                                            // Remove double quotes using replace
-                                                            const stringWithoutQuotes = stringWithoutBrackets.replace(/"/g, '');
-                                                            return (
-
-                                                                <div key={`T1` + index}  >
-                                                                    {stringWithoutQuotes}
-                                                                </div>
-
-                                                            )
-                                                        })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        {value.certificates.map((value: any, index: any) => (value.certificate).map((value: any, index: any) =>
-                                                        (
-
-                                                            <div key={`T2` + index} className="border m-0.5 p-1 flex  items-center overflow-hidden" >
-
-
-                                                                <p title={value} className="cursor-pointer  text-ellipsis overflow-hidden w-[100px] ...">{value}
-
-                                                                </p>
-                                                                <Link href={generateDownloadLink(value)} className="ml-3">
-                                                                    <span><DownloadIcon /></span>
-                                                                </Link>
-                                                            </div>
-
-                                                        )
-                                                        ))}
-                                                    </td>
+                                                        return (
+                                                            <td key={i} className="whitespace-pre-wrap px-6 py-4">
+                                                                {displayValue || "-"}
+                                                            </td>
+                                                        );
+                                                    })}
                                                 </tr>
                                             ))}
                                         </tbody>

@@ -13,14 +13,7 @@ const routes = [
         href: "/",
         label: "Survey",
         icon: "Album"
-    },
-    {
-        href: "/response",
-        label: "Responses",
-        icon: "Home"
-
     }
-
 ]
 
 
