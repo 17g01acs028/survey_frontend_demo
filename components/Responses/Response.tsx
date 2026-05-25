@@ -53,6 +53,7 @@ const Response = () => {
             .then((res) => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
+                    setLoading(false);
                 }
                 return res.text();
             })
@@ -171,7 +172,7 @@ const Response = () => {
 
 
                                                                 <p title={value} className="cursor-pointer  text-ellipsis overflow-hidden w-[100px] ...">{value}
-                                                                    
+
                                                                 </p>
                                                                 <Link href={generateDownloadLink(value)} className="ml-3">
                                                                     <span><DownloadIcon /></span>
